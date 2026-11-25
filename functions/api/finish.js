@@ -1,21 +1,6 @@
 import { store } from "../_lib/store.js";
 import { json, readBody, validId, validSid } from "../_lib/util.js";
-import { handoffPrompt, transcriptText } from "../_lib/prompts.js";
-import { callClaude } from "../_lib/claude.js";
-export async function makeHandoff(env, db, b, s) {
-  const brief = await db.getJSON("brief:" + b); const key = `session:${b}:${s}`; const sess = await db.getJSON(key);
-  if (!brief || !sess) return null;
-  try {
-    sess.handoff = await callClaude(env, {
-      system: "You write precise editorial handoffs for YouTube scriptwriters.",
-      messages: [{ role: "user", content: handoffPrompt(brief, transcriptText(sess.messages || [])) }],
-      model: env.CLAUDE_HANDOFF_MODEL || env.CLAUDE_MODEL, maxTokens: 4000,
-    });
-    delete sess.handoffError;
-  } catch (e) { sess.handoffError = String(e.message || e); }
-  await db.setJSON(key, sess);
-  return sess;
-}
+import { extractFacts, makeHandoff } from "../_lib/kb.js";
 export async function onRequestPost({ request, env, waitUntil }) {
   const body = await readBody(request);
   const b = String(body.b || ""), s = String(body.s || "");
@@ -25,6 +10,11 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (!sess) return json(404, { error: "not_found" });
   sess.status = "done"; sess.finishedAt = new Date().toISOString();
   await db.setJSON(key, sess);
-  waitUntil(makeHandoff(env, db, b, s)); // handoff is built after the response
+  // Best effort after the response: save reusable facts first, then the script handoff.
+  // Both can be re-run from the studio if they did not finish in time.
+  waitUntil((async () => {
+    try { await extractFacts(env, db, b, s); } catch (e) {}
+    try { await makeHandoff(env, db, b, s); } catch (e) {}
+  })());
   return json(200, { ok: true });
 }
