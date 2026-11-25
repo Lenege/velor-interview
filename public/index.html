@@ -138,7 +138,8 @@ function transcriptText(msgs){let n=0;return msgs.map(m=>m.role==="assistant"?("
 async function copyText(btn,text,label){try{await navigator.clipboard.writeText(text);const o=btn.textContent;btn.textContent=label||"Скопировано";setTimeout(()=>btn.textContent=o,1500);}catch(e){btn.textContent="Не скопировалось";}}
 async function api(path,opts){const r=await fetch(path,opts);let j={};try{j=await r.json();}catch(e){}if(!r.ok)throw Object.assign(new Error(j.error||("http_"+r.status)),{status:r.status});return j;}
 
-// ---------- routing ----------
+// ---------- routing (called at the end, after all declarations) ----------
+function route(){
 const path=location.pathname.replace(/\/+$/,"");
 if(path==="/admin") renderAdmin();
 else{
@@ -147,6 +148,7 @@ else{
   const id=m?m[1]:(hashId||"");
   if(id) renderInterviewPage(id);
   else{clear();view.append(card(el("h1",{text:"Velor Interview"}),el("p",{class:"lede",text:"Откройте персональную ссылку на интервью, которую вам прислала команда Velor. / Open the personal interview link the Velor team sent you."})));}
+}
 }
 
 // ---------- interview ----------
@@ -345,6 +347,7 @@ function buildBriefForm(){
     el("label",{for:"bCtx",text:"Контекст для интервьюера"}),ctx,
     el("div",{class:"row",style:"margin-top:12px"},el("div",{class:"left"},save),msg));
 }
+route();
 })();
 </script>
 </body>
