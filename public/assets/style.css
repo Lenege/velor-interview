@@ -6,8 +6,8 @@
   --tint:#2a2318; --tint-line:#D6A13D; --chip-green:#1d2a1f; --chip-green-t:#a7d7ae;
   --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 20px 50px -30px rgba(0,0,0,.8);
   --sans:"Satoshi","Neue Montreal",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --serif:"Source Serif 4",Georgia,serif;
+  --mono:var(--sans);
+  --serif:var(--sans);
   color-scheme:dark;
 }
 :root[data-theme="light"]{
@@ -23,7 +23,7 @@ a{color:inherit}
 button,input,textarea,select{font:inherit;color:inherit}
 .hidden{display:none!important}
 .mono{font-family:var(--mono)}
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:500}
 .muted{color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
@@ -89,7 +89,7 @@ input.in:focus,textarea.in:focus,select.in:focus{border-color:var(--gold)}
 @media (max-width:700px){.row2{grid-template-columns:1fr;gap:8px}}
 .box{border:1px solid var(--line2);border-radius:20px;padding:28px 32px;background:var(--panel);box-shadow:var(--shadow);margin:22px 0}
 .box .k{font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--faint);text-transform:uppercase;margin-bottom:14px}
-.box .spoken{font-family:var(--serif);font-size:22px;line-height:1.6}
+.box .spoken{font-family:var(--sans);font-size:21px;line-height:1.6;font-weight:500}
 .box.gold{border-color:rgba(214,161,61,.45);background:linear-gradient(180deg,rgba(214,161,61,.07),transparent 70%),var(--panel)}
 .ref{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:26px;align-items:start;margin-top:12px}
 .ref a.thumb{display:block;position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/9;background:var(--panel2)}

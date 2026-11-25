@@ -22,7 +22,7 @@
       draftHook: "Драфт хука", approach: "Подход", option: "Вариант", good: "Что уже ясно", need: "Что нужно от вас", covers: "Интервью охватит",
       tipK: "Совет", tip: "Надиктовывайте, а не печатайте: так быстрее и живее. В поле ответа есть кнопка микрофона. Ещё вариант — встроенная диктовка: дважды Fn на Mac, Win + H на Windows.",
       startNote: "15–20 минут · ответы сохраняются автоматически",
-      preview: "Предпросмотр: в этом режиме интервью не запускается.", progress: "Интервью пройдено", progressDone: "Интервью завершено", prev: "Назад", next: "Дальше", nSec: function (n) { return n === 5 ? "Пять разделов" : "Шесть разделов"; }
+      preview: "Предпросмотр: в этом режиме интервью не запускается.", progress: "Интервью пройдено", cont: "Продолжить интервью", viewAnswers: "Посмотреть ответы", progressDone: "Интервью завершено", prev: "Назад", next: "Дальше", nSec: function (n) { return n === 5 ? "Пять разделов" : "Шесть разделов"; }
     },
     en: {
       ai: "Interviewer", you: "Your answer", start: "Start interview", send: "Send", finish: "End interview",
@@ -43,7 +43,7 @@
       draftHook: "Hook draft", approach: "Approach", option: "Option", good: "What we're good on", need: "What we need you for", covers: "The interview covers",
       tipK: "Pro tip", tip: "Dictate, don't type: it's faster and sounds more like you. There's a mic button in the answer box, or use built-in dictation: Fn twice on Mac, Win + H on Windows.",
       startNote: "15–20 minutes · answers save automatically",
-      preview: "Preview: the interview does not start in this mode.", progress: "Interview progress", progressDone: "Interview complete", prev: "Back", next: "Next", nSec: function (n) { return n === 5 ? "Five sections" : "Six sections"; }
+      preview: "Preview: the interview does not start in this mode.", progress: "Interview progress", cont: "Continue interview", viewAnswers: "View my answers", progressDone: "Interview complete", prev: "Back", next: "Next", nSec: function (n) { return n === 5 ? "Five sections" : "Six sections"; }
     }
   };
 
@@ -83,8 +83,9 @@
     if (preview) { showDeck(); return; }
     sid = V.lsGet("velor-sid-" + briefId); if (!sid) { sid = V.rid(); V.lsSet("velor-sid-" + briefId, sid); }
     try { session = await api("/api/session?b=" + briefId + "&s=" + sid); } catch (e) { session = { messages: [], status: "new" }; }
-    if (session.status === "done" || (session.messages || []).length) showChat();
-    else if (slides.length) showDeck();
+    // The presentation always opens first; the last slide starts or continues the interview.
+    if (slides.length) { V.lsSet("velor-slide-" + briefId, 0); showDeck(); }
+    else if (session.status === "done" || (session.messages || []).length) showChat();
     else showStart();
   }
 
@@ -143,7 +144,7 @@
           el("ul", { class: "covers" }, nx.covers.map(function (c) { return el("li", { text: c }); }))] : null,
         el("div", { class: "tip" }, el("div", { class: "k", text: L.tipK }), el("p", { text: L.tip })),
         el("div", { class: "startbar" },
-          el("button", { class: "btn gold", type: "button", onclick: startFromDeck }, L.start, icon("arrow")),
+          el("button", { class: "btn gold", type: "button", onclick: startFromDeck }, session.status === "done" ? L.viewAnswers : (session.messages || []).length ? L.cont : L.start, icon("arrow")),
           el("span", { class: "muted", text: preview ? L.preview : L.startNote }))];
     });
   }
